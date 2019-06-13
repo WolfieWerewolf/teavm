@@ -74,6 +74,11 @@ public class CFileSystem implements VirtualFileSystem {
         return entry.get();
     }
 
+    @Override
+    public boolean isWindows() {
+        return isWindowsNative();
+    }
+
     static class Entry extends WeakReference<CVirtualFile> {
         String path;
 
@@ -86,6 +91,10 @@ public class CFileSystem implements VirtualFileSystem {
     @Import(name = "teavm_file_homeDirectory")
     @Unmanaged
     public static native int homeDirectory(Address resultPtr);
+
+    @Import(name = "teavm_file_tempDirectory")
+    @Unmanaged
+    public static native int tempDirectory(Address resultPtr);
 
     @Import(name = "teavm_file_workDirectory")
     @Unmanaged
@@ -170,4 +179,8 @@ public class CFileSystem implements VirtualFileSystem {
     @Import(name = "teavm_file_write")
     @Unmanaged
     static native int write(long file, byte[] data, int offset, int count);
+
+    @Import(name = "teavm_file_isWindows")
+    @Unmanaged
+    static native boolean isWindowsNative();
 }

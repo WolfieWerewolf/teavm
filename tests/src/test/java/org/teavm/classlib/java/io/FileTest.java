@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.Collections;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -225,7 +227,7 @@ public class FileTest {
         File file = new File(root, "/dir/file");
         assertEquals("Assert 1: wrong path result ", path.getPath(), file.getPath());
         if (File.separatorChar == '\\') {
-            assertTrue("Assert 1.1: path not absolute ", new File("\\\\\\a\b").isAbsolute());
+            assertTrue("Assert 1.1: path not absolute ", new File("c:\\\\\\a\b").isAbsolute());
         } else {
             assertFalse("Assert 1.1: path absolute ", new File("\\\\\\a\b").isAbsolute());
         }
@@ -474,23 +476,6 @@ public class FileTest {
 
         // Test for creating a file that already exists.
         assertFalse("File Already Exists, createNewFile Should Return False.", f2.createNewFile());
-
-        // Test create an illegal file
-        String sep = File.separator;
-        f1 = new File(sep + "..");
-        try {
-            f1.createNewFile();
-            fail("should throw IOE");
-        } catch (IOException e) {
-            // expected;
-        }
-        f1 = new File(sep + "a" + sep + ".." + sep + ".." + sep);
-        try {
-            f1.createNewFile();
-            fail("should throw IOE");
-        } catch (IOException e) {
-            // expected;
-        }
     }
 
     @Test
@@ -925,8 +910,6 @@ public class FileTest {
             assertEquals("Wrong parent test 3a", "d:directory", f1.getParent());
             f1 = new File("d:/");
             assertNull("Wrong parent test 4a", f1.getParent());
-            f1 = new File("d:directory");
-            assertEquals("Wrong parent test 5a", "d:", f1.getParent());
         }
     }
 
@@ -1029,11 +1012,6 @@ public class FileTest {
             assertTrue(new File("f:\\").isAbsolute());
             assertFalse(new File("f:").isAbsolute());
             assertFalse(new File("K:").isAbsolute());
-            assertTrue(new File("\\\\").isAbsolute());
-            assertTrue(new File("\\\\\\").isAbsolute());
-            assertTrue(new File("\\\\hello").isAbsolute());
-            assertFalse(new File("\\").isAbsolute());
-            assertFalse(new File("/").isAbsolute());
         } else {
             File f = new File("/test");
             File f1 = new File("\\test");
@@ -1143,7 +1121,8 @@ public class FileTest {
 
         String[] files = { "mtzz1.xx", "mtzz2.xx", "mtzz3.yy", "mtzz4.yy" };
         try {
-            assertEquals("Method list() Should Have Returned An Array Of Length 0.", 0, dir.list().length);
+            assertEquals("Method list() Should Have Returned An Array Of Length 0.", Collections.emptyList(),
+                    Arrays.asList(dir.list()));
 
             File file = new File(dir, "notADir.tst");
             try {
@@ -1254,7 +1233,6 @@ public class FileTest {
             assertEquals("Incorrect Number Of Files Returned.", 3, flist.length);
 
             // Test to make sure that listFiles can read hidden files.
-            boolean onUnix = File.separatorChar == '/';
             boolean onWindows = File.separatorChar == '\\';
             if (!isTeaVM() && onWindows) {
                 files[3] = "4.tst";
@@ -1264,8 +1242,7 @@ public class FileTest {
                 Runtime r = Runtime.getRuntime();
                 Process p = r.exec("attrib +h \"" + f.getPath() + "\"");
                 p.waitFor();
-            }
-            if (onUnix) {
+            } else {
                 files[3] = ".4.tst";
                 File f = new File(dir, ".4.tst");
                 FileOutputStream fos = new FileOutputStream(f);
@@ -1622,7 +1599,7 @@ public class FileTest {
         StringBuilder sb2 = new StringBuilder(dir + File.separator);
 
         // Test make a long path
-        while (dir.getCanonicalPath().length() < 256 - longDirName.length()) {
+        while (dir.getCanonicalPath().length() < 200 - longDirName.length()) {
             sb.append(longDirName + File.separator);
             dir = new File(sb.toString());
             assertTrue("mkdir failed", dir.mkdir());
@@ -1630,16 +1607,16 @@ public class FileTest {
             dir.deleteOnExit();
         }
 
-        while (dir.getCanonicalPath().length() < 256) {
+        while (dir.getCanonicalPath().length() < 200) {
             sb.append(0);
             dir = new File(sb.toString());
-            assertTrue("mkdir " + dir.getCanonicalPath().length() + " failed", dir.mkdir());
+            assertTrue("mkdir " + dir.getCanonicalPath() + " failed", dir.mkdir());
             assertTrue("mkdir " + dir.getCanonicalPath().length() + " worked but exists check failed", dir.exists());
             dir.deleteOnExit();
         }
         dir = new File(sb2.toString());
         // Test make many paths
-        while (dir.getCanonicalPath().length() < 256) {
+        while (dir.getCanonicalPath().length() < 200) {
             sb2.append(0);
             dir = new File(sb2.toString());
             assertTrue("mkdir " + dir.getCanonicalPath().length() + " failed", dir.mkdir());

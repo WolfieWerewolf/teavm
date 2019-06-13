@@ -19,4 +19,6 @@ public interface VirtualFileSystem {
     String getUserDir();
 
     VirtualFile getFile(String path);
+
+    boolean isWindows();
 }
